@@ -9,7 +9,6 @@ from typing import TYPE_CHECKING, Any, ClassVar, Literal
 
 import numpy as np
 
-from memos import settings
 from memos.configs.graph_db import NebulaGraphDBConfig
 from memos.dependency import require_python_package
 from memos.graph_dbs.base import BaseGraphDB
@@ -147,8 +146,7 @@ class SessionPool:
             client.execute("YIELD 1")
             self.pool.put(client)
         except Exception:
-            if settings.DEBUG:
-                logger.info("[Pool] Client dead, replacing...")
+            logger.info("[Pool] Client dead, replacing...")
 
             self.replace_client(client)
 
@@ -217,8 +215,7 @@ class SessionPool:
 
         self.pool.put(new_client)
 
-        if settings.DEBUG:
-            logger.info(f"[Pool] Replaced dead client with a new one. {new_client}")
+        logger.info(f"[Pool] Replaced dead client with a new one. {new_client}")
 
         return new_client
 
