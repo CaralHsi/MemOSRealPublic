@@ -5,7 +5,6 @@ import os
 from typing import Any
 
 from memos.configs.mem_os import MOSConfig
-from memos.context.context import ContextThreadPoolExecutor
 from memos.llms.factory import LLMFactory
 from memos.log import get_logger
 from memos.mem_os.core import MOSCore
@@ -488,7 +487,7 @@ class MOS(MOSCore):
 
         # Generate answers in parallel while maintaining order
         sub_answers = [None] * len(sub_questions)
-        with ContextThreadPoolExecutor(max_workers=min(len(sub_questions), 10)) as executor:
+        with concurrent.futures.ThreadPoolExecutor(max_workers=min(len(sub_questions), 10)) as executor:
             # Submit all answer generation tasks
             future_to_index = {
                 executor.submit(generate_answer_for_question, i, question): i
@@ -551,7 +550,7 @@ class MOS(MOSCore):
 
         # Search in parallel while maintaining order
         all_memories = []
-        with ContextThreadPoolExecutor(max_workers=min(len(sub_questions), 10)) as executor:
+        with concurrent.futures.ThreadPoolExecutor(max_workers=min(len(sub_questions), 10)) as executor:
             # Submit all search tasks and keep track of their order
             future_to_index = {
                 executor.submit(search_single_question, question): i

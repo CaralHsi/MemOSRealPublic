@@ -1,9 +1,9 @@
 import json
 import traceback
+import concurrent.futures
 
 from datetime import datetime
 
-from memos.context.context import ContextThreadPoolExecutor
 from memos.embedders.factory import OllamaEmbedder
 from memos.graph_dbs.factory import Neo4jGraphDB
 from memos.llms.factory import AzureLLM, OllamaLLM, OpenAILLM
@@ -43,7 +43,7 @@ class Searcher:
         self.internet_retriever = internet_retriever
         self.moscube = moscube
 
-        self._usage_executor = ContextThreadPoolExecutor(max_workers=4, thread_name_prefix="usage")
+        self._usage_executor = concurrent.futures.ThreadPoolExecutor(max_workers=4, thread_name_prefix="usage")
 
     @timed
     def search(
@@ -171,7 +171,7 @@ class Searcher:
     ):
         """Run A/B/C retrieval paths in parallel"""
         tasks = []
-        with ContextThreadPoolExecutor(max_workers=3) as executor:
+        with concurrent.futures.ThreadPoolExecutor(max_workers=3) as executor:
             tasks.append(
                 executor.submit(
                     self._retrieve_from_working_memory,

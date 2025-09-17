@@ -13,7 +13,6 @@ from memos import log
 from memos.chunkers import ChunkerFactory
 from memos.configs.mem_reader import SimpleStructMemReaderConfig
 from memos.configs.parser import ParserConfigFactory
-from memos.context.context import ContextThreadPoolExecutor
 from memos.embedders.factory import EmbedderFactory
 from memos.llms.factory import LLMFactory
 from memos.mem_reader.base import BaseMemReader
@@ -216,7 +215,7 @@ class SimpleStructMemReader(BaseMemReader, ABC):
             processing_func = self._process_doc_data
 
         # Process Q&A pairs concurrently with context propagation
-        with ContextThreadPoolExecutor() as executor:
+        with concurrent.futures.ThreadPoolExecutor() as executor:
             futures = [
                 executor.submit(processing_func, scene_data_info, info)
                 for scene_data_info in list_scene_data_info
@@ -290,7 +289,7 @@ class SimpleStructMemReader(BaseMemReader, ABC):
         doc_nodes = []
         scene_file = scene_data_info["file"]
 
-        with ContextThreadPoolExecutor(max_workers=50) as executor:
+        with concurrent.futures.ThreadPoolExecutor(max_workers=50) as executor:
             futures = {
                 executor.submit(
                     _build_node,
